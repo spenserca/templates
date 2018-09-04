@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+# This template will create an AWS CodePipeline using
+# the CodeBuild Projects defined in the template.
+
+Parameters:
+  AppName:
+    Type: String
+  ArtifactStore:
+    Type: String
+  CodeBuildRole:
+    Type: String
+  Repository:
+    Type: String
+
+Resources:
+  BuildStep:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: spenserca/nodejs-8.11.3:latest
+        Type: LINUX_CONTAINER
+      Name: 
+        !Sub ${AppName}-build
+      ServiceRole:
+        !Ref CodeBuildRole
+      Source:
+        BuildSpec: aws/build.yml
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+  DeployStep:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: spenserca/nodejs-8.11.3:latest
+        Type: LINUX_CONTAINER
+      Name:
+        !Sub ${AppName}-deploy
+      ServiceRole:
+        !Ref CodeBuildRole
+      Source:
+        BuildSpec: aws/deploy.yml
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Location:
+          !Ref ArtifactStore
+        Type: S3
+      Name:
+        !Sub ${AppName}-pipeline
+      RoleArn:
+        !Ref CodeBuildRole
+      Stages:
+      - Name: source
+        Actions:
+        - Name:
+            !Sub ${AppName}-source
+          ActionTypeId: 
+            Category: Source
+            Owner: AWS
+            Version: '1'
+            Provider: CodeCommit
+          Configuration:
+            RepositoryName:
+              !Ref Repository
+            PollForSourceChanges: true
+            BranchName: master
+          OutputArtifacts:
+          - Name:
+              !Sub ${AppName}-source
+          InputArtifacts: []
+          Name: 
+            !Sub ${AppName}-source
+          RunOrder: 1
+      - Name: assemble
+        Actions:
+        - Name:
+            !Sub ${AppName}-build
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Version: '1'
+            Provider: CodeBuild
+          Configuration:
+            ProjectName:
+              !Sub ${AppName}-build
+          RunOrder: 1
+          InputArtifacts:
+          - Name:
+              !Sub ${AppName}-source
+          OutputArtifacts:
+          - Name:
+              !Sub ${AppName}-build
+      - Name: deploy
+        Actions:
+        - Name:
+            !Sub ${AppName}-deploy
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Version: '1'
+            Provider: CodeBuild
+          InputArtifacts:
+          - Name:
+              !Sub ${AppName}-build
+          OutputArtifacts: []
+          Configuration:
+            ProjectName:
+              !Sub ${AppName}-deploy
+          RunOrder: 1
