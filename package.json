@@ -1,0 +1,45 @@
+{
+    "name": "templates",
+    "version": "1.0.0",
+    "description": "Common templates for CloudFormation, Azure, configuration, etc...",
+    "files": [
+        "dist"
+    ],
+    "main": "dist/output-filename.js",
+    "author": "Spenser Andreassen",
+    "license": "UNLICENSED",
+    "private": false,
+    "scripts": {
+        "build": "rm -rf dist && npm run build:css && webpack-cli --mode production --config ./config/webpack.config.js",
+        "build:css": "postcss --config config/postcss.config.js src/styles/index.css -o src/index.css",
+        "commitmsg": "commitlint -E GIT_PARAMS",
+        "start": "npm run build && webpack-dev-server --open",
+        "start:react": "react-scripts start",
+        "test": "jest ./test/**"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.0.0",
+        "@babel/preset-env": "^7.0.0",
+        "@babel/preset-react": "^7.0.0",
+        "@commitlint/cli": "^7.1.1",
+        "@commitlint/config-conventional": "^7.1.1",
+        "autoprefixer": "^9.1.3",
+        "babel-core": "^7.0.0-bridge.0",
+        "babel-jest": "^23.4.2",
+        "babel-loader": "^8.0.0",
+        "css-loader": "^1.0.0",
+        "file-loader": "^2.0.0",
+        "html-webpack-plugin": "^3.2.0",
+        "husky": "^0.14.3",
+        "jest": "^23.5.0",
+        "postcss-cli": "^6.0.0",
+        "react": "^16.4.2",
+        "react-scripts": "^1.1.5",
+        "tailwindcss": "^0.6.5",
+        "url-loader": "^1.1.1",
+        "webpack": "^4.17.1",
+        "webpack-bundle-analyzer": "^2.13.1",
+        "webpack-cli": "^3.1.0",
+        "webpack-dev-server": "^3.1.6"
+    }
+}
