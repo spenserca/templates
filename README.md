@@ -1,1 +1,3 @@
 # templates
+
+Common templates for CloudFormation, Azure, configuration, etc...
