@@ -1,0 +1,12 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - make init
+      - make verify
+      - make build
+  
+artifacts:
+  files:
+    - "**/*"

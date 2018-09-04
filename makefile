@@ -4,6 +4,9 @@ AWS_ACCOUNT = $(shell aws sts get-caller-identity | jq '.Account')
 build:
 	yarn build
 
+deploy:
+	aws s3 sync build/ s3://$(ARTIFACT_STORE_BUCKET)
+
 init:
 	yarn
 
